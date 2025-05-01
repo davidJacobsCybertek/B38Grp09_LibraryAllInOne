@@ -11,10 +11,12 @@ import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.everyItem;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -24,6 +26,8 @@ public class APIStepDefs {
     Response response;
     ValidatableResponse thenPart;
     JsonPath jp;
+
+    String expectedID;
 
    // US01
     @Given("I logged Library api as a {string}")
@@ -74,4 +78,28 @@ public class APIStepDefs {
             thenPart.body(path, everyItem(Matchers.notNullValue()));
         }
     }
+
+    //US02
+    @Given("Path param {string} is {string}")
+    public void path_param_is(String pathParamKey, String pathParamValue) {
+        givenPart.pathParam(pathParamKey, pathParamValue);
+        expectedID= pathParamValue;
+
+    }
+    @Then("{string} field should be same with path param")
+    public void field_should_be_same_with_path_param(String pathParamKey) {
+        Assert.assertEquals(expectedID, response.jsonPath().getString(pathParamKey));
+
+    }
+    @Then("following fields should not be null")
+    public void following_fields_should_not_be_null(List<String> paths) {
+        for (String path : paths) {
+            thenPart.body(path, notNullValue());
+        }
+    }
+
+
+
+
+
 }
